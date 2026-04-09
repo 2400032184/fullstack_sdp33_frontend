@@ -1,0 +1,191 @@
+.home-container section {
+  padding: 100px 50px;
+}
+
+.hero {
+  background: 
+    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), /* Bright overlay */
+    url("../styles/back2.png") center center no-repeat;
+  min-height: 100vh; /* full screen height */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: rgb(218, 230, 146);
+  font-family: "Times New Roman", Times, serif;
+  background-size: cover; /* ensures full coverage */
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: brightness(1.1); /* increase brightness slightly */
+}
+
+/* Optional: make hero responsive */
+@media (max-width: 1000px) {
+  .hero {
+    min-height: 50vh;
+    background-size: cover;
+  }
+}
+
+
+.typing {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  font-family: "Times New Roman", Times, serif;
+  border-right: 3px solid white; /* cursor */
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: blink-caret 0.2s step-end infinite; /* blinking cursor */
+  
+  /* White glow/shadow effect */
+  text-shadow: 
+    0 0 5px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(0, 0, 0, 0.521),
+    0 0 20px rgba(0, 0, 0, 0.523),
+    0 0 30px rgba(29, 232, 250, 0.689);
+}
+
+
+/* Remove cursor after typing completes */
+.typing-complete {
+  border-right: none;
+}
+
+@keyframes blink-caret {
+  0%, 100% { border-color: transparent; }
+  50% { border-color: white; }
+}
+
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: rgba(254, 254, 254, 0.909);
+  font-family: "Times New Roman", Times, serif;
+}
+
+.btn-primary {
+  background: #123c5a;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  transition: 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #1f6f8b;
+}
+
+/* Services Section */
+.services {
+  background: url("../styles/servicesimage.jpeg") center/cover no-repeat;
+  text-align: center;
+  color: #f3eeee; 
+  padding: 60px 20px;
+}
+
+.services h2 {
+  font-size: 2.5rem;
+  margin-bottom: 50px;
+}
+
+.cards {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #fdfdfd;
+  padding: 30px;
+  border-radius: 36px;
+  max-width: 300px;
+  box-shadow: 0 8px 15px rgba(14, 14, 14, 0.973);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* About Section */
+.about {
+  background: #E0F7FA;
+}
+
+.about-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.about .text {
+  flex: 1;
+  min-width: 300px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.about .image img {
+  max-width: 400px;
+  border-radius: 15px;
+}
+
+/* Contact Section */
+.contact {
+  background: #FFF0F5;
+  text-align: center;
+}
+
+.contact form {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: auto;
+  gap: 15px;
+}
+
+.contact input, .contact textarea {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.contact button {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #FFAAA6;
+  color: white;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.contact button:hover {
+  background: #FF8C94;
+}
+
+/* Footer */
+footer {
+  padding: 30px 0;
+  text-align: center;
+  background: #123c5a;
+  color: #fffefe;
+  font-family: "Times New Roman", Times, serif;
+}

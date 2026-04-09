@@ -1,0 +1,91 @@
+.navbar {
+  width: 100%;
+  background: linear-gradient(90deg, #0a1f2e, #123c5a, #1f6f8b, #0f3057);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(11, 11, 11, 0.943);
+  transition: background 0.5s ease;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-left .logo {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.navbar-left .logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.6);
+}
+
+.navbar-left h2 {
+  color: #f0eaea;
+  font-size: 1.8rem;
+  margin: 0;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center; /* ensures vertical alignment with logo */
+  gap: 25px;
+}
+
+.nav-links li {
+  list-style: none;
+}
+
+.nav-links li a {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.nav-links li a:hover {
+  color: #FFAAA6;
+  transform: scale(1.05);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Profile picture */
+.nav-links li img.nav-profile-pic {
+  width: 50px;        /* same as logo */
+  height: 50px;       /* same as logo */
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.nav-links li img.nav-profile-pic:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .nav-links {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
