@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AdminProfileContainer from "./AdminProfileContainer";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
@@ -7,7 +8,47 @@ const AdminProfile = () => {
 
   useEffect(() => {
     const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
-    setAdmin(currentAdmin);
+    if (currentAdmin && currentAdmin.id) {
+      // Try to fetch full profile from backend
+      fetch(API_ENDPOINTS.GET_ADMIN_PROFILE(currentAdmin.id))
+        .then(res => res.json())
+        .then(backendAdmin => {
+          // Parse languages and jobPositions if they're JSON strings from backend
+          let languages = [];
+          let jobPositions = [];
+
+          if (typeof backendAdmin.languages === 'string') {
+            try {
+              languages = JSON.parse(backendAdmin.languages);
+            } catch (e) {
+              languages = [];
+            }
+          }
+
+          if (typeof backendAdmin.jobPositions === 'string') {
+            try {
+              jobPositions = JSON.parse(backendAdmin.jobPositions);
+            } catch (e) {
+              jobPositions = [];
+            }
+          }
+
+          const adminData = {
+            ...backendAdmin,
+            languages: Array.isArray(languages) ? languages : [],
+            jobPositions: Array.isArray(jobPositions) ? jobPositions : [],
+          };
+          
+          setAdmin(adminData);
+          // Update localStorage with fresh data from backend
+          localStorage.setItem("currentAdmin", JSON.stringify(adminData));
+        })
+        .catch(err => {
+          console.log("Using localStorage data");
+          // Fallback to localStorage if backend fails
+          setAdmin(currentAdmin);
+        });
+    }
   }, []);
 
   if (!admin) {

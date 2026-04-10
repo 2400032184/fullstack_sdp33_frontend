@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -9,7 +10,7 @@ const Users = () => {
   // ✅ FETCH USERS FROM BACKEND
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/users")
+      .get(API_ENDPOINTS.GET_USERS)
       .then((res) => {
         setUsers(res.data.reverse());
       })
@@ -30,7 +31,7 @@ const Users = () => {
     try {
       for (let index of selectedUsers) {
         const user = users[index];
-        await axios.delete(`http://localhost:8080/api/users/${user.id}`);
+        await axios.delete(API_ENDPOINTS.DELETE_USER(user.id));
       }
 
       const updatedUsers = users.filter(

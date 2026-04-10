@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const UpdateCourses = () => {
   const [courses, setCourses] = useState([]);
 
   // 🔹 Fetch courses from backend
   useEffect(() => {
+    const cachedCourses = localStorage.getItem("courses");
+    if (cachedCourses) {
+      setCourses(JSON.parse(cachedCourses));
+    }
     fetchCourses();
   }, []);
 
   const fetchCourses = () => {
-    axios.get("http://localhost:8080/api/courses")
-      .then(res => setCourses(res.data))
-      .catch(err => console.error("Error fetching courses:", err));
+    axios
+      .get(API_ENDPOINTS.GET_COURSES)
+      .then((res) => {
+        setCourses(res.data);
+        localStorage.setItem("courses", JSON.stringify(res.data)); // save to localStorage
+      })
+      .catch((err) => console.error("Error fetching courses:", err));
   };
 
   // 🔹 Add a new course
@@ -29,8 +38,10 @@ const UpdateCourses = () => {
     const newCourse = { title, instructor, duration };
 
     try {
-      await axios.post("http://localhost:8080/api/courses", newCourse);
-      fetchCourses(); // refresh list
+      const res = await axios.post(API_ENDPOINTS.CREATE_COURSE, newCourse);
+      const updatedCourses = [...courses, res.data];
+      setCourses(updatedCourses);
+      localStorage.setItem("courses", JSON.stringify(updatedCourses)); // update localStorage
     } catch (err) {
       console.error("Error adding course:", err);
     }
@@ -41,8 +52,10 @@ const UpdateCourses = () => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/courses/${id}`);
-      fetchCourses(); // refresh list
+      await axios.delete(API_ENDPOINTS.DELETE_COURSE(id));
+      const updatedCourses = courses.filter((c) => c.id !== id);
+      setCourses(updatedCourses);
+      localStorage.setItem("courses", JSON.stringify(updatedCourses)); // update localStorage
     } catch (err) {
       console.error("Error deleting course:", err);
     }
@@ -50,7 +63,7 @@ const UpdateCourses = () => {
 
   // 🔹 Edit a course
   const handleEditCourse = async (id) => {
-    const courseToEdit = courses.find(c => c.id === id);
+    const courseToEdit = courses.find((c) => c.id === id);
     if (!courseToEdit) return;
 
     const title = prompt("Course Title:", courseToEdit.title);
@@ -65,8 +78,12 @@ const UpdateCourses = () => {
     const updatedCourse = { title, instructor, duration };
 
     try {
-      await axios.put(`http://localhost:8080/api/courses/${id}`, updatedCourse);
-      fetchCourses(); // refresh list
+      await axios.put(API_ENDPOINTS.UPDATE_COURSE(id), updatedCourse);
+      const updatedCourses = courses.map((c) =>
+        c.id === id ? { ...c, ...updatedCourse } : c
+      );
+      setCourses(updatedCourses);
+      localStorage.setItem("courses", JSON.stringify(updatedCourses)); // update localStorage
     } catch (err) {
       console.error("Error updating course:", err);
     }
@@ -75,23 +92,33 @@ const UpdateCourses = () => {
   return (
     <div className="update-courses-container">
       <h1>Admin: Update Courses</h1>
-      <button className="add-btn" onClick={handleAddCourse}>➕ Add Course</button>
+      <button className="add-btn" onClick={handleAddCourse}>
+        ➕ Add Course
+      </button>
 
       <div className="courses-grid">
-        {courses.map(course => (
+        {courses.map((course) => (
           <div key={course.id} className="course-card">
             <h2>{course.title}</h2>
-            <p><strong>Instructor:</strong> {course.instructor}</p>
-            <p><strong>Duration:</strong> {course.duration}</p>
+            <p>
+              <strong>Instructor:</strong> {course.instructor}
+            </p>
+            <p>
+              <strong>Duration:</strong> {course.duration}
+            </p>
 
             <div className="card-buttons">
-              <button className="edit-btn" onClick={() => handleEditCourse(course.id)}>✏️ Edit</button>
-              <button className="delete-btn" onClick={() => handleDeleteCourse(course.id)}>🗑 Delete</button>
+              <button className="edit-btn" onClick={() => handleEditCourse(course.id)}>
+                ✏️ Edit
+              </button>
+              <button className="delete-btn" onClick={() => handleDeleteCourse(course.id)}>
+                🗑 Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
-
+  
       <style>{`
         .update-courses-container {
           padding: 40px 20px;

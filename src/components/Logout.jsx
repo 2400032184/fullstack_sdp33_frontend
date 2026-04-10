@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutImage from "../styles/tq.jpg";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -11,13 +12,14 @@ const Logout = () => {
 
     if (user && user.id) {
       // 🔹 Update logout timestamp
-      fetch(`http://localhost:8080/api/users/logout?id=${user.id}`, {
+      fetch(API_ENDPOINTS.LOGOUT + `?id=${user.id}`, {
         method: "POST",
       }).catch(err => console.error(err));
     }
 
-    // Remove localStorage
+    // Remove localStorage (all user data keys)
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("currentUser");
     localStorage.removeItem("currentAdmin");
 
     // Redirect to Home

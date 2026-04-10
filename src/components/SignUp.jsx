@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👁️ icons
+import API_ENDPOINTS from "../config/apiConfig";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const SignUp = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch(API_ENDPOINTS.SIGNUP, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const Login = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(API_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -44,13 +45,42 @@ const Login = () => {
         alert(data.message || "Invalid username or password");
       } else {
         // ✅ Update login timestamp
-        await fetch(`http://localhost:8080/api/users/login?username=${username}`, {
+        const loginRes = await fetch(API_ENDPOINTS.USER_LOGIN(username), {
           method: "POST",
         });
 
         // ✅ Store the logged-in user object
         const loggedInUser = data.data;
+        localStorage.setItem("currentUser", JSON.stringify(loggedInUser));
         localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+
+        // ✅ Fetch full profile from backend and update localStorage
+        if (loggedInUser && loggedInUser.id) {
+          try {
+            const profileRes = await fetch(API_ENDPOINTS.GET_USER_PROFILE(loggedInUser.id));
+            if (profileRes.ok) {
+              const fullProfile = await profileRes.json();
+              // Parse languages array if it's a string
+              let languages = [];
+              if (typeof fullProfile.languages === 'string') {
+                try {
+                  languages = JSON.parse(fullProfile.languages);
+                } catch (e) {
+                  languages = [];
+                }
+              }
+              const userWithProfile = {
+                ...fullProfile,
+                languages: Array.isArray(languages) ? languages : [],
+              };
+              localStorage.setItem("currentUser", JSON.stringify(userWithProfile));
+            }
+          } catch (profileErr) {
+            console.log("Couldn't fetch full profile, using login response");
+            localStorage.setItem("currentUser", JSON.stringify(loggedInUser));
+          }
+        }
+
         window.dispatchEvent(new Event("storage"));
 
         alert(`Welcome, ${loggedInUser.username}!`);

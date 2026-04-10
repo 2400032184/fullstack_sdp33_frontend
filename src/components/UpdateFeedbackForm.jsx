@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const UpdateFeedbackForm = ({ course }) => {
   const defaultStarCategories = [
@@ -42,7 +43,7 @@ const UpdateFeedbackForm = ({ course }) => {
 
   // ✅ LOAD FROM BACKEND FIRST
   useEffect(() => {
-    fetch("http://localhost:8080/api/feedback-form")
+    fetch(API_ENDPOINTS.GET_FEEDBACK_FORM)
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -98,7 +99,7 @@ const UpdateFeedbackForm = ({ course }) => {
 
     try {
       // ✅ SAVE TO BACKEND
-      await fetch("http://localhost:8080/api/feedback-form", {
+      await fetch(API_ENDPOINTS.CREATE_FEEDBACK_FORM, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

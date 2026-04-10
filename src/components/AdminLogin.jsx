@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import { useNavigate, Link } from "react-router-dom";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const AdminLogin = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,8 +53,49 @@ const AdminLogin = () => {
         return;
       }
 
-      // ✅ LOGIN SUCCESS
-      localStorage.setItem("currentUser", JSON.stringify(data));
+      // ✅ LOGIN SUCCESS - Store admin data
+      const adminData = data.data || data;
+      localStorage.setItem("currentAdmin", JSON.stringify(adminData));
+      
+      // ✅ Fetch full profile from backend and update localStorage
+      if (adminData && adminData.id) {
+        try {
+          const profileRes = await fetch(API_ENDPOINTS.GET_ADMIN_PROFILE(adminData.id));
+          if (profileRes.ok) {
+            const fullProfile = await profileRes.json();
+            // Parse languages and jobPositions arrays if they're strings
+            let languages = [];
+            let jobPositions = [];
+            
+            if (typeof fullProfile.languages === 'string') {
+              try {
+                languages = JSON.parse(fullProfile.languages);
+              } catch (e) {
+                languages = [];
+              }
+            }
+            
+            if (typeof fullProfile.jobPositions === 'string') {
+              try {
+                jobPositions = JSON.parse(fullProfile.jobPositions);
+              } catch (e) {
+                jobPositions = [];
+              }
+            }
+            
+            const adminWithProfile = {
+              ...fullProfile,
+              languages: Array.isArray(languages) ? languages : [],
+              jobPositions: Array.isArray(jobPositions) ? jobPositions : [],
+            };
+            localStorage.setItem("currentAdmin", JSON.stringify(adminWithProfile));
+          }
+        } catch (profileErr) {
+          console.log("Couldn't fetch full profile, using login response");
+          localStorage.setItem("currentAdmin", JSON.stringify(adminData));
+        }
+      }
+      
       window.dispatchEvent(new Event("storage"));
 
       alert(`Welcome Admin, ${username}!`);

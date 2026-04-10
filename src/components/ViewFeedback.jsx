@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const ViewFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -12,7 +13,7 @@ const ViewFeedback = () => {
 
   const loadFeedbacks = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/feedback");
+      const res = await axios.get(API_ENDPOINTS.GET_FEEDBACK);
 
       const formatted = res.data.map((f) => ({
         ...f,
@@ -50,7 +51,7 @@ const ViewFeedback = () => {
 
         await Promise.all(
           selectedIds.map((id) =>
-            axios.delete(`http://localhost:8080/api/feedback/${id}`)
+            axios.delete(API_ENDPOINTS.DELETE_FEEDBACK(id))
           )
         );
 

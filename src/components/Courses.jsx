@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const Courses = ({ onGiveFeedback }) => {
   const [submittedCourses, setSubmittedCourses] = useState({});
   const [coursesData, setCoursesData] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/courses")
+    axios.get(API_ENDPOINTS.GET_COURSES)
       .then((res) => setCoursesData(res.data))
       .catch((err) => console.error("Error fetching courses:", err));
   }, []);

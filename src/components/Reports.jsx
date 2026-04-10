@@ -221,7 +221,6 @@ const Reports = () => {
               <h2>Student Suggestions</h2>
               {feedbacks.map((fb, idx) => (
                 <div key={idx} className="suggestion-card">
-                  <p><strong>{fb.fullName}</strong></p>
 
                   {fb.improvement && (
                     <p><strong>Improvement:</strong> {fb.improvement}</p>

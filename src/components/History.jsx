@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const History = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -16,7 +17,7 @@ const History = () => {
       }
 
       const res = await axios.get(
-        `http://localhost:8080/api/feedback/user/${userId}`
+        API_ENDPOINTS.GET_USER_FEEDBACK(userId)
       );
 
       const data = res.data;
@@ -50,9 +51,9 @@ const History = () => {
 
         if (!userId) return;
 
-        await axios.delete(
-          `http://localhost:8080/api/feedback/user/${userId}`
-        );
+        // Use API_ENDPOINTS instead of hardcoded localhost
+        const deleteUrl = API_ENDPOINTS.GET_USER_FEEDBACK(userId);
+        await axios.delete(deleteUrl);
 
         setFeedbacks([]);
       } catch (err) {

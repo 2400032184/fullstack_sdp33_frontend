@@ -1,15 +1,43 @@
 import React, { useState, useEffect } from "react";
 import UserProfileContainer from "./UserProfileContainer";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // ✅ Load user from localStorage to persist after logout/login
+    // Load user from localStorage
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser) {
-      setUser(currentUser);
+    if (currentUser && currentUser.id) {
+      // Try to fetch full profile from backend
+      fetch(API_ENDPOINTS.GET_USER_PROFILE(currentUser.id))
+        .then(res => res.json())
+        .then(backendUser => {
+          // Parse languages if it's a JSON string from backend
+          let languages = [];
+          if (typeof backendUser.languages === 'string') {
+            try {
+              languages = JSON.parse(backendUser.languages);
+            } catch (e) {
+              languages = [];
+            }
+          }
+
+          const userData = {
+            ...backendUser,
+            languages: Array.isArray(languages) ? languages : [],
+          };
+          
+          setUser(userData);
+          // Update localStorage with fresh data from backend
+          localStorage.setItem("currentUser", JSON.stringify(userData));
+        })
+        .catch(err => {
+          console.log("Using localStorage data");
+          // Fallback to localStorage if backend fails
+          setUser(currentUser);
+        });
     }
   }, []);
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const allLanguages = [
   "English","Hindi","Bengali","Telugu","Marathi","Tamil","Urdu","Gujarati",
@@ -41,17 +42,111 @@ const UpdateAdminProfile = () => {
   const [formData, setFormData] = useState(defaultData);
 
   useEffect(() => {
-    const savedAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
-    if (savedAdmin) {
-      // Make sure arrays exist
-      setFormData({
-        ...defaultData,
-        ...savedAdmin,
-        languages: Array.isArray(savedAdmin.languages) ? savedAdmin.languages : [],
-        jobPositions: Array.isArray(savedAdmin.jobPositions) ? savedAdmin.jobPositions : [],
-      });
+    const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
+    if (currentAdmin && currentAdmin.id) {
+      // Try to fetch full profile from backend
+      fetch(API_ENDPOINTS.GET_ADMIN_PROFILE(currentAdmin.id))
+        .then(res => res.json())
+        .then(backendAdmin => {
+          // Parse languages and jobPositions if they're JSON strings from backend
+          let languages = [];
+          let jobPositions = [];
+
+          if (typeof backendAdmin.languages === 'string') {
+            try {
+              languages = JSON.parse(backendAdmin.languages);
+            } catch (e) {
+              languages = [];
+            }
+          }
+
+          if (typeof backendAdmin.jobPositions === 'string') {
+            try {
+              jobPositions = JSON.parse(backendAdmin.jobPositions);
+            } catch (e) {
+              jobPositions = [];
+            }
+          }
+
+          setFormData({
+            ...defaultData,
+            ...backendAdmin,
+            languages: Array.isArray(languages) ? languages : [],
+            jobPositions: Array.isArray(jobPositions) ? jobPositions : [],
+          });
+        })
+        .catch(err => {
+          console.log("Using localStorage data");
+          // Fallback to localStorage if backend fails
+          if (currentAdmin) {
+            setFormData({
+              ...defaultData,
+              ...currentAdmin,
+              languages: Array.isArray(currentAdmin.languages) ? currentAdmin.languages : [],
+              jobPositions: Array.isArray(currentAdmin.jobPositions) ? currentAdmin.jobPositions : [],
+            });
+          }
+        });
     }
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin"));
+    console.log("🔍 Current admin from localStorage:", currentAdmin);
+    console.log("🔍 Form data being submitted:", formData);
+    
+    if (!currentAdmin || !currentAdmin.id) {
+      alert("Please login first!");
+      return;
+    }
+
+    try {
+      // Prepare data for backend (convert arrays to JSON strings)
+      const backendData = {
+        ...formData,
+        languages: JSON.stringify(formData.languages),
+        jobPositions: JSON.stringify(formData.jobPositions),
+      };
+
+      const updateUrl = API_ENDPOINTS.UPDATE_ADMIN_PROFILE(currentAdmin.id);
+      console.log("📤 Sending to:", updateUrl);
+      console.log("📤 Payload:", JSON.stringify(backendData, null, 2));
+
+      // Save to backend
+      const response = await fetch(updateUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(backendData),
+      });
+
+      console.log("📥 Response status:", response.status, "OK:", response.ok);
+
+      if (response.ok) {
+        const updatedAdmin = await response.json();
+        console.log("✅ Update successful:", updatedAdmin);
+        
+        // Update localStorage with the updated profile
+        localStorage.setItem("currentAdmin", JSON.stringify({
+          ...updatedAdmin,
+          languages: Array.isArray(formData.languages) ? formData.languages : [],
+          jobPositions: Array.isArray(formData.jobPositions) ? formData.jobPositions : [],
+        }));
+
+        alert("Admin profile updated successfully!");
+      } else {
+        const errorText = await response.text();
+        console.error(`❌ Update failed with status ${response.status}:`, errorText);
+        alert(`Failed to update profile. Status: ${response.status}. Error: ${errorText}`);
+      }
+    } catch (error) {
+      console.error("❌ Error updating admin profile:", error);
+      // Fallback: save to localStorage only
+      localStorage.setItem("currentAdmin", JSON.stringify(formData));
+      alert("Profile saved locally (backend unavailable). Changes will sync when connection is restored.");
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, files, checked } = e.target;
@@ -79,12 +174,6 @@ const UpdateAdminProfile = () => {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    localStorage.setItem("currentAdmin", JSON.stringify(formData));
-    alert("Admin profile updated successfully!");
   };
 
   return (

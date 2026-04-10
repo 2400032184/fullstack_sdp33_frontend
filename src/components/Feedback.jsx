@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const Feedback = ({ course, onFeedbackSubmitted, notifyHistory }) => {
   const defaultStarCategories = [
@@ -77,7 +78,7 @@ const Feedback = ({ course, onFeedbackSubmitted, notifyHistory }) => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/api/feedback", {
+      const res = await fetch(API_ENDPOINTS.CREATE_FEEDBACK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(feedback),

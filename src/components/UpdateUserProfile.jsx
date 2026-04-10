@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_ENDPOINTS from "../config/apiConfig";
 
 const allLanguages = [
   "English","Hindi","Bengali","Telugu","Marathi","Tamil","Urdu","Gujarati",
@@ -47,15 +48,44 @@ const UpdateUserProfile = () => {
   const [formData, setFormData] = useState(defaultData);
 
   useEffect(() => {
-    // Load user from localStorage
+    // Load user from localStorage and backend
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser) {
-      setFormData({
-        ...defaultData,
-        ...currentUser,
-        languages: Array.isArray(currentUser.languages) ? currentUser.languages : [],
-        institution: currentUser.institution || "",
-      });
+    if (currentUser && currentUser.id) {
+      // Try to fetch full profile from backend
+      fetch(API_ENDPOINTS.GET_USER_PROFILE(currentUser.id))
+        .then(res => res.json())
+        .then(backendUser => {
+          // Parse languages if it's a JSON string from backend
+          let languages = [];
+          if (backendUser.languages) {
+            if (typeof backendUser.languages === 'string') {
+              try {
+                languages = JSON.parse(backendUser.languages);
+              } catch (e) {
+                languages = [];
+              }
+            } else if (Array.isArray(backendUser.languages)) {
+              languages = backendUser.languages;
+            }
+          }
+
+          setFormData({
+            ...defaultData,
+            ...backendUser,
+            languages: Array.isArray(languages) ? languages : [],
+          });
+        })
+        .catch(err => {
+          console.log("Couldn't fetch from backend, using localStorage");
+          // Fallback to localStorage if backend fails
+          if (currentUser) {
+            setFormData({
+              ...defaultData,
+              ...currentUser,
+              languages: Array.isArray(currentUser.languages) ? currentUser.languages : [],
+            });
+          }
+        });
     }
   }, []);
 
@@ -87,11 +117,69 @@ const UpdateUserProfile = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // ✅ Save to localStorage to persist after logout/login
-    localStorage.setItem("currentUser", JSON.stringify(formData));
-    alert("Profile updated successfully!");
+    
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    console.log("🔍 Current user from localStorage:", currentUser);
+    console.log("🔍 Form data being submitted:", formData);
+    
+    if (!currentUser || !currentUser.id) {
+      alert("Please login first!");
+      return;
+    }
+
+    try {
+      // Prepare data for backend (convert languages array to JSON string)
+      const backendData = {
+        ...formData,
+        languages: JSON.stringify(formData.languages),
+      };
+
+      const updateUrl = API_ENDPOINTS.UPDATE_USER_PROFILE(currentUser.id);
+      console.log("📤 Sending to:", updateUrl);
+      console.log("📤 Payload:", JSON.stringify(backendData, null, 2));
+
+      // Save to backend
+      const response = await fetch(updateUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(backendData),
+      });
+
+      console.log("📥 Response status:", response.status, "OK:", response.ok);
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        console.log("✅ Update successful:", updatedUser);
+        
+        // Update localStorage with the updated profile (both keys for compatibility)
+        localStorage.setItem("currentUser", JSON.stringify({
+          ...updatedUser,
+          languages: Array.isArray(formData.languages) ? formData.languages : [],
+        }));
+        localStorage.setItem("loggedInUser", JSON.stringify({
+          ...updatedUser,
+          languages: Array.isArray(formData.languages) ? formData.languages : [],
+        }));
+
+        alert("Profile updated successfully!");
+      } else {
+        const errorText = await response.text();
+        console.error(`❌ Update failed with status ${response.status}:`, errorText);
+        alert(`Failed to update profile. Status: ${response.status}. Error: ${errorText}`);
+      }
+    } catch (error) {
+      console.error("❌ Error updating profile:", error);
+      // Fallback: save to localStorage only (both keys)
+      const userData = {
+        ...formData,
+        languages: Array.isArray(formData.languages) ? formData.languages : [],
+      };
+      localStorage.setItem("currentUser", JSON.stringify(userData));
+      localStorage.setItem("loggedInUser", JSON.stringify(userData));
+      alert("Profile saved locally (backend unavailable). Changes will sync when connection is restored.");
+    }
   };
 
   return (
