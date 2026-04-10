@@ -42,6 +42,7 @@ The application is deployed on Vercel and communicates with the backend APIs for
 ⚙️ Configuration
 
 Create a `.env` file and add: VITE_API_URL=https://fullstacksdp33backend-production.up.railway.app
+
 For local development:
 VITE_API_URL=http://localhost:8080
 
