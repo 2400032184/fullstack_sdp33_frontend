@@ -1,21 +1,82 @@
-frontend Deployment link: https://fullstack-sdp33-frontend-i171.vercel.app/
+🚀 Student Feedback Management System – Frontend
+
+🌐 Deployment Links
+
+- Frontend App: https://fullstack-sdp33-frontend-i171.vercel.app/
+  
+⚠️ For the best experience, please view this application on a laptop/desktop.
+
+- Backend API: https://fullstacksdp33backend-production.up.railway.app/
+
+---
+
+📌 Project Overview
+This is the frontend of the Student Feedback System built using React and Vite.  
+It provides user interfaces for authentication, profile management, course handling, and feedback submission.
+
+The application is deployed on Vercel and communicates with the backend APIs for real-time data.
+
+---
+
+🛠️ Tech Stack
+- React (Vite)
+- Material UI (MUI)
+- Axios
+- React Router
+- CSS / Styled Components
+- Vercel (Deployment)
+
+---
+
+✨ Features
+- User & Admin Login / Signup
+- Profile Management
+- Dashboard Interface
+- Course Viewing & Management
+- Feedback Submission
+- API Integration with Backend
+- Local Storage for session handling
+
+---
+
+⚙️ Configuration
+
+Create a `.env` file and add: VITE_API_URL=https://fullstacksdp33backend-production.up.railway.app
+For local development:
+VITE_API_URL=http://localhost:8080
 
 
-# React + Vite
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+▶️ Running Locally
 
-Currently, two official plugins are available:
+npm install
+npm run dev
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Frontend runs at:  
+http://localhost:5173
 
-## React Compiler
+---
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+🔗 API Integration
 
-Note: This will impact Vite dev & build performances.
+All API calls are connected to the backend using Axios.
 
-## Expanding the ESLint configuration
+Base URL:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+https://fullstacksdp33backend-production.up.railway.app
+
+
+---
+
+💾 Data Handling
+- Local Storage for temporary session data
+- Backend database for persistent data
+
+---
+
+🚀 Deployment
+The frontend is deployed on Vercel
+
+🔗 Live Frontend:  
+https://fullstack-sdp33-frontend-i171.vercel.app/
