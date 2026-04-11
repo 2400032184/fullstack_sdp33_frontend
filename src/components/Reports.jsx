@@ -26,63 +26,70 @@ const Reports = () => {
 
   const COLORS = ["#6CCECB", "#FF9AA2", "#FFD6A5", "#B5EAD7", "#CBAACB", "#FFDAC1"];
 
+  // ✅ YOUR BACKEND API
+  const API_URL = "https://fullstacksdp33backend-production.up.railway.app/api/feedback";
+
   useEffect(() => {
-    const storedFeedbacks =
-      JSON.parse(localStorage.getItem("userFeedbacks")) || [];
+    fetch(API_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        setFeedbacks([...data].reverse());
 
-    setFeedbacks([...storedFeedbacks].reverse());
+        const summary = {};
 
-    const summary = {};
+        // ✅ FIXED: parse starRatings string
+        data.forEach((fb) => {
+          const ratings = JSON.parse(fb.starRatings || "{}");
 
-    // ✅ Convert numeric ratings to categories
-    storedFeedbacks.forEach((fb) => {
-      Object.entries(fb.starRatings || {}).forEach(([question, rating]) => {
-        if (!summary[question]) {
-          summary[question] = {
-            Excellent: 0,
-            Good: 0,
-            Average: 0,
-            Poor: 0,
+          Object.entries(ratings).forEach(([question, rating]) => {
+            if (!summary[question]) {
+              summary[question] = {
+                Excellent: 0,
+                Good: 0,
+                Average: 0,
+                Poor: 0,
+              };
+            }
+
+            let category = "";
+
+            if (rating >= 5) category = "Excellent";
+            else if (rating === 4) category = "Good";
+            else if (rating === 3) category = "Average";
+            else category = "Poor";
+
+            summary[question][category] += 1;
+          });
+        });
+
+        const chartData = Object.entries(summary).map(([question, counts]) => ({
+          category: question,
+          ...counts,
+        }));
+
+        setRatingSummary(chartData);
+
+        // ✅ Majority calculation
+        const stats = Object.entries(summary).map(([question, counts]) => {
+          const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+          const majority = Object.entries(counts).reduce((a, b) =>
+            b[1] > a[1] ? b : a
+          )[0];
+
+          const starMap = { Excellent: 5, Good: 4, Average: 3, Poor: 2 };
+
+          return {
+            question,
+            total,
+            majority,
+            stars: starMap[majority] || 0,
           };
-        }
+        });
 
-        let category = "";
-
-        if (rating >= 5) category = "Excellent";
-        else if (rating === 4) category = "Good";
-        else if (rating === 3) category = "Average";
-        else category = "Poor";
-
-        summary[question][category] += 1;
-      });
-    });
-
-    const chartData = Object.entries(summary).map(([question, counts]) => ({
-      category: question,
-      ...counts,
-    }));
-
-    setRatingSummary(chartData);
-
-    // ✅ Majority calculation per question
-    const stats = Object.entries(summary).map(([question, counts]) => {
-      const total = Object.values(counts).reduce((a, b) => a + b, 0);
-
-      const majority = Object.entries(counts).reduce((a, b) =>
-        b[1] > a[1] ? b : a
-      )[0];
-
-      const starMap = { Excellent: 5, Good: 4, Average: 3, Poor: 2 };
-
-      return {
-        question,
-        total,
-        majority,
-        stars: starMap[majority] || 0,
-      };
-    });
-
-    setQuestionStats(stats);
+        setQuestionStats(stats);
+      })
+      .catch((err) => console.error("Error fetching feedbacks:", err));
   }, []);
 
   const scatterData = ratingSummary.map((item, i) => ({
@@ -93,6 +100,7 @@ const Reports = () => {
 
   return (
     <>
+      <Navbar />
       <div className="reports-page">
         <h1>User Feedback Reports</h1>
         <p>Total Feedbacks: {feedbacks.length}</p>
@@ -221,7 +229,6 @@ const Reports = () => {
               <h2>Student Suggestions</h2>
               {feedbacks.map((fb, idx) => (
                 <div key={idx} className="suggestion-card">
-
                   {fb.improvement && (
                     <p><strong>Improvement:</strong> {fb.improvement}</p>
                   )}
